@@ -1,0 +1,118 @@
+---
+title: "Healthy Ride in Pittsburgh Flex Dashboard"
+date: "September 20, 2018"
+runtime: shiny
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: row
+    vertical_layout: fill
+    theme: sandstone
+    favicon: favicon.png
+---
+
+```{r setup, include=FALSE}
+#require packages
+library(flexdashboard)
+library(shiny)
+library(dplyr)
+library(plotly)
+library(reshape2)
+library(shinythemes)
+library(tibble)
+
+#input data
+ride <- read.csv('./ride.csv', head=TRUE)
+
+#data cleaning
+ride$Starttime <- NULL
+ride$Stoptime <- NULL
+ride$From.station.id <- NULL
+ride$To.station.id <- NULL
+ride$From.station.name <- NULL
+ride$To.station.name <- NULL
+
+ride <- ride%>%
+  mutate(speedlevel = as.character(speedlevel),
+         Usertype = as.factor(Usertype),
+         Bikeid= as.factor(Bikeid))
+
+rideInput <- reactive({
+  ride.filter <- ride %>%
+    #slider tripduration filter
+    filter(Tripduration >= input$TripdurationSelect[1] & Tripduration <= input$TripdurationSelect[2])
+  #selectinput speedlevel filter 
+  if (length(input$SpeedSelect) > 0 ) {
+    ride.filter <- subset(ride.filter, speedlevel%in% input$SpeedSelect)
+  }
+  #selecting bikeid filter 
+  if (length(input$BikeidSelect) > 0 ) {
+    ride.filter <- subset(ride.filter, Bikeid %in% input$BikeidSelect)
+  }
+  #check box usertype Filter
+  ride.filter <- subset(ride.filter, Usertype%in%input$UserSelect)
+
+  return(ride.filter)
+})
+
+mwInput <- reactive({
+  rideInput() %>%
+    melt(id = "Usertype")
+})
+
+pdf(NULL)
+```
+
+Sidebar {.sidebar}
+=====================================
+
+```{r}
+selectInput("SpeedSelect",
+            "Choose the Speed Range:",
+            choices = sort(unique(ride$speedlevel)), 
+            multiple = TRUE,
+            selectize = TRUE,
+            selected = c("1~10","10~20","20~30"))
+
+sliderInput("TripdurationSelect",
+            "Trip Duration:",
+            min = min(ride$Tripduration, na.rm = T),
+            max = max(ride$Tripduration, na.rm = T),
+            value = c("80", "151106"),
+            step = 1)
+selectInput("BikeidSelect",
+               "Bike ID:",
+               choices = sort(unique(ride$Bikeid)),
+               multiple = TRUE,
+               selectize = TRUE,
+               selected = c("70043", "70000","70007","70245","70063"))
+
+checkboxGroupInput("UserSelect",
+                   "User Type:",
+                   choices = sort(unique(ride$Usertype)),
+                   selected = c("Customer","Subscriber"))
+
+```
+
+Plot
+=====================================
+
+Row 
+-------------------------------------
+
+###
+
+
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  
+)
+
+server <- function(input, output, session) {
+  
+}
+
+shinyApp(ui, server)
+```
+
