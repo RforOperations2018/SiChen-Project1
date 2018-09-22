@@ -131,7 +131,51 @@ renderGauge({
 Row {.tabset .tabset-fade}
 -------------------------------------
 
-###
+### Speed & Tripduration
+
+```{r}
+renderPlotly({
+    dat <- rideInput()
+    ggplotly(
+      ggplot(data = dat, aes(x = Speed, y = Tripduration, color = Usertype))+geom_point())
+  })
+```
+
+### Usertype & Speed
+
+```{r}
+renderPlotly({
+    dat <- rideInput()
+    ggplotly(
+      ggplot(data = dat, aes(x = Usertype, y = Speed))+geom_boxplot())})
+```
+
+
+### Usertype & Bike
+```{r}
+renderPlotly({
+  dat <- rideInput()
+  ggplotly(
+    ggplot(data = dat, aes(x = Usertype,fill=Bikeid))+geom_bar())})
+```
+
+Table
+=====================================
+
+Row 
+-------------------------------------
+
+### Table 
+
+```{r}
+DT::renderDataTable({
+  ride.filter<- rideInput()
+  subset(ride.filter,select =c(Trip.id,Usertype,Tripduration,Speed,speedlevel,Bikeid))
+})
+```
+
+Row
+-------------------------------------
 
 
 ```{r}
