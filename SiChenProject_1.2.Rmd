@@ -179,6 +179,7 @@ Row
 
 
 ```{r}
+# Not sure why this is here, but you're missing a 3rd page.
 library(shiny)
 
 ui <- fluidPage(
